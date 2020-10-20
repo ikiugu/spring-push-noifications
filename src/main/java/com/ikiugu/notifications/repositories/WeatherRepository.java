@@ -1,6 +1,7 @@
 package com.ikiugu.notifications.repositories;
 
 import com.ikiugu.notifications.models.User;
+import com.ikiugu.notifications.models.Weather;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -9,8 +10,6 @@ import org.springframework.stereotype.Repository;
  */
 
 @Repository
-public interface UserRepository extends JpaRepository<User, Long> {
-    User findByUserName(String userName);
-
-    User findByUserToken(String token);
+public interface WeatherRepository extends JpaRepository<Weather, Long> {
+    Weather findByUser(User user);
 }
