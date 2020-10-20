@@ -3,7 +3,6 @@ package com.ikiugu.notifications.models;
 import lombok.Data;
 
 import javax.persistence.Entity;
-import javax.persistence.Id;
 import javax.persistence.Table;
 
 /**
@@ -13,10 +12,7 @@ import javax.persistence.Table;
 @Data
 @Entity
 @Table(name = "users")
-public class User {
-
-    @Id
-    private long id;
+public class User extends BaseModel {
     private String userName;
     private String userToken;
 }
