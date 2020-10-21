@@ -17,4 +17,5 @@ import javax.persistence.Table;
 public class User extends BaseModel {
     private String userName;
     private String userToken;
+    private boolean notifications = true;
 }

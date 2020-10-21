@@ -29,7 +29,7 @@ public class WeatherController {
     private final FirebaseService firebaseService;
     public static final String WEATHER_TOPIC = "weather";
 
-    Logger logger = LoggerFactory.getLogger(WeatherController.class);
+    private Logger logger = LoggerFactory.getLogger(WeatherController.class);
 
     public WeatherController(WeatherRepository weatherRepository, UserRepository userRepository, FirebaseService firebaseService) {
         this.weatherRepository = weatherRepository;
