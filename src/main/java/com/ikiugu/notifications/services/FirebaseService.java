@@ -19,7 +19,7 @@ public class FirebaseService {
         this.firebaseMessaging = firebaseMessaging;
     }
 
-    public String sendNotification(NotificationDto notification) throws FirebaseMessagingException {
+    public String sendNotificationWithoutData(NotificationDto notification) throws FirebaseMessagingException {
         AndroidNotification androidNotification = AndroidNotification.builder()
                 .setClickAction(".Notification")
                 .setTitle(notification.getSubject())

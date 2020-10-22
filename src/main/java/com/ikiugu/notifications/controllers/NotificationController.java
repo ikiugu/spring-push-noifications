@@ -1,10 +1,7 @@
 package com.ikiugu.notifications.controllers;
 
 import com.google.firebase.messaging.FirebaseMessagingException;
-import com.ikiugu.notifications.models.MessageDto;
-import com.ikiugu.notifications.models.NotificationDto;
-import com.ikiugu.notifications.models.User;
-import com.ikiugu.notifications.models.Weather;
+import com.ikiugu.notifications.models.*;
 import com.ikiugu.notifications.repositories.UserRepository;
 import com.ikiugu.notifications.repositories.WeatherRepository;
 import com.ikiugu.notifications.services.FirebaseService;
@@ -21,14 +18,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.ikiugu.notifications.controllers.WeatherController.WEATHER_TOPIC;
-
 /**
  * created by alfred.ikiugu on 20-Oct-20
  */
 
 @RestController
 public class NotificationController {
+    private static final String WEATHER_TOPIC = "weather";
     private final UserRepository userRepository;
     private final WeatherRepository weatherRepository;
     private final FirebaseService firebaseService;
@@ -43,7 +39,7 @@ public class NotificationController {
 
     @PostMapping("/sendMessage")
     public ResponseEntity<MessageDto> sendTargetedMessage(@RequestBody MessageDto request) {
-        User sender = userRepository.findByUserToken(request.getSenderToken());
+        User sender = userRepository.findByUserName(request.getSenderUserName());
         User recipient = userRepository.findByUserName(request.getRecipientUserName());
         String response = "No";
         MessageDto message = new MessageDto();
@@ -121,5 +117,58 @@ public class NotificationController {
             return new ResponseEntity<>(user, HttpStatus.OK);
         }
 
+    }
+
+    @PostMapping("/subscribe/weather")
+    public ResponseEntity<Weather> updateSubscription(@RequestBody SubscriptionDto data) {
+        User user = userRepository.findByUserName(data.getUserName());
+        Weather weather = new Weather();
+
+        if (user == null) {
+            weather.setSuccess(false);
+            weather.setErrorMessage("This user does not exist");
+
+            logger.info("The user does not exist");
+            return new ResponseEntity<>(weather, HttpStatus.OK);
+        }
+
+        if (data.isSubscribe()) {
+            weather.setUser(user);
+            handleSubscription(user.getUserToken(), true);
+            weatherRepository.save(weather);
+
+            logger.info(weather.getUser().getUserName() + " subscribed successfully");
+            weather.setSuccess(true);
+        } else {
+            weather = weatherRepository.findByUser(user);
+            handleSubscription(weather.getUser().getUserToken(), false);
+            weatherRepository.delete(weather);
+
+            logger.info(weather.getUser().getUserName() + " un-subscribed successfully");
+            weather.setSuccess(true);
+        }
+
+        return new ResponseEntity<>(weather, HttpStatus.OK);
+    }
+
+    private void handleSubscription(String token, boolean subscribe) {
+
+        List<String> tokens = Collections.singletonList(token);
+
+        if (subscribe) {
+            try {
+                int num = firebaseService.subscribeToTopic(WEATHER_TOPIC, tokens);
+                logger.info(num + " token(s) subscribed");
+            } catch (FirebaseMessagingException e) {
+                e.printStackTrace();
+            }
+        } else {
+            try {
+                int num = firebaseService.unSubscribeToTopic(WEATHER_TOPIC, tokens);
+                logger.info(num + " token(s) un-subscribed");
+            } catch (FirebaseMessagingException e) {
+                e.printStackTrace();
+            }
+        }
     }
 }

@@ -8,7 +8,7 @@ import lombok.Data;
 
 @Data
 public class MessageDto extends BaseModel {
-    private String senderToken;
+    private String senderUserName;
     private String recipientUserName;
     private String message;
 }
